@@ -42,7 +42,28 @@ connectXRPL().then(() => {
     } catch(e) {}
   })
 })
-
+app.get("/pay/:id", (req, res) => {
+  const payment = getPayment(req.params.id)
+  if (!payment) return res.status(404).send(`
+    <html>
+      <body style="font-family:sans-serif;text-align:center;padding:60px;background:#0a0a0f;color:white;">
+        <h1>❌ Lien introuvable</h1>
+        <p style="color:#888">Ce lien de paiement n'existe pas ou a expiré.</p>
+      </body>
+    </html>
+  `)
+  res.send(`
+    <html>
+      <body style="font-family:sans-serif;text-align:center;padding:60px;background:#0a0a0f;color:white;">
+        <h1 style="color:#00e5a0">💸 Paiement XRPay</h1>
+        <p style="font-size:24px;font-weight:bold;">${payment.amount} XRP</p>
+        <p style="color:#888">${payment.desc || ''}</p>
+        <p style="color:#888;font-size:12px;">Vers : ${payment.destination}</p>
+        <p style="color:#888;font-size:12px;">Statut : ${payment.status === 'paid' ? '✅ Payé' : '⏳ En attente'}</p>
+      </body>
+    </html>
+  `)
+})
 app.listen(process.env.PORT, () => {
   console.log(`🚀 PayLinkr backend running on port ${process.env.PORT}`)
 })
